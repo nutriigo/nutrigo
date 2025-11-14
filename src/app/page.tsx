@@ -9,20 +9,48 @@ import {
   Check, 
   Users, 
   Mail, 
-  MessageCircle, 
   Play, 
   ArrowRight, 
-  Calendar
+  Calendar,
+  Trophy,
+  X,
+  ExternalLink
 } from "lucide-react";
+import CheckoutKiwify from "@/components/custom/checkout-kiwify";
+import LeadCaptureForm from "@/components/custom/lead-capture-form";
+import Link from "next/link";
 
 export default function NutriGOLandingPage() {
-  const [email, setEmail] = useState("");
-  const [selectedPlan, setSelectedPlan] = useState("anual");
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [showRanking, setShowRanking] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{
+    id: string;
+    name: string;
+    price: string;
+  } | null>(null);
 
-  const handleLeadCapture = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Obrigado! Enviaremos 5 receitas saudáveis para ${email}`);
-    setEmail("");
+  const handlePlanSelect = (planId: string, planName: string, price: string) => {
+    setSelectedPlan({ id: planId, name: planName, price });
+    setShowCheckout(true);
+  };
+
+  const handleDownloadApp = () => {
+    // Redireciona para a seção de planos para assinar
+    const planosSection = document.getElementById('planos');
+    if (planosSection) {
+      planosSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSocialClick = (platform: string) => {
+    const urls: { [key: string]: string } = {
+      instagram: "https://www.instagram.com/nutrigo.app/",
+      email: "mailto:contatonutrigo@outlook.com"
+    };
+    
+    if (urls[platform]) {
+      window.open(urls[platform], "_blank");
+    }
   };
 
   return (
@@ -52,11 +80,17 @@ export default function NutriGOLandingPage() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button className="bg-white text-[#8BC34A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-gray-100 transition-all hover:scale-105 shadow-2xl flex items-center justify-center gap-2">
+                <button 
+                  onClick={handleDownloadApp}
+                  className="bg-white text-[#8BC34A] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-gray-100 transition-all hover:scale-105 shadow-2xl flex items-center justify-center gap-2"
+                >
                   <Play className="w-5 h-5" />
-                  Baixar App
+                  Começar Agora
                 </button>
-                <button className="bg-[#FF9800] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-[#F57C00] transition-all hover:scale-105 shadow-2xl flex items-center justify-center gap-2">
+                <button 
+                  onClick={() => handlePlanSelect("anual", "Anual", "149,90")}
+                  className="bg-[#FF9800] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-[#F57C00] transition-all hover:scale-105 shadow-2xl flex items-center justify-center gap-2"
+                >
                   <Zap className="w-5 h-5" />
                   Teste grátis por 7 dias
                 </button>
@@ -179,7 +213,7 @@ export default function NutriGOLandingPage() {
       </section>
 
       {/* Planos e Preços */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-gray-100">
+      <section id="planos" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-4 text-gray-900">
             Escolha seu plano
@@ -272,7 +306,7 @@ export default function NutriGOLandingPage() {
                 </ul>
 
                 <button
-                  onClick={() => setSelectedPlan(plan.id)}
+                  onClick={() => handlePlanSelect(plan.id, plan.name, plan.price)}
                   className={`w-full py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-all hover:scale-105 ${
                     plan.popular
                       ? "bg-[#8BC34A] text-white hover:bg-[#7CB342] shadow-lg"
@@ -286,8 +320,19 @@ export default function NutriGOLandingPage() {
           </div>
 
           <p className="text-center text-gray-600 mt-8 sm:mt-12 text-sm sm:text-base">
-            💳 Aceitamos PIX, cartão de crédito e boleto • Cancele quando quiser
+            💳 Aceitamos PIX, cartão de crédito e boleto via Kiwify • Cancele quando quiser
           </p>
+
+          {/* Link para área de receitas */}
+          <div className="text-center mt-8">
+            <Link 
+              href="/receitas"
+              className="inline-flex items-center gap-2 text-[#8BC34A] hover:text-[#7CB342] font-semibold transition-colors"
+            >
+              Ver receitas exclusivas para assinantes
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -357,7 +402,10 @@ export default function NutriGOLandingPage() {
 
           <div className="text-center mt-8 sm:mt-12">
             <p className="text-lg sm:text-xl mb-6">🏆 Top Nutricionistas da Semana</p>
-            <button className="bg-white text-[#FF9800] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-gray-100 transition-all hover:scale-105 shadow-2xl">
+            <button 
+              onClick={() => setShowRanking(true)}
+              className="bg-white text-[#FF9800] px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-gray-100 transition-all hover:scale-105 shadow-2xl"
+            >
               Ver Ranking Completo
             </button>
           </div>
@@ -367,33 +415,7 @@ export default function NutriGOLandingPage() {
       {/* Captura de Leads */}
       <section className="py-16 sm:py-20 lg:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-[#8BC34A] to-[#7CB342] rounded-3xl p-8 sm:p-12 lg:p-16 text-white text-center shadow-2xl">
-            <Mail className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6" />
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-              Receba 5 receitas saudáveis grátis
-            </h2>
-            <p className="text-lg sm:text-xl mb-8 text-white/90">
-              Cadastre seu e-mail e comece a transformar sua alimentação hoje mesmo
-            </p>
-            
-            <form onSubmit={handleLeadCapture} className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Seu melhor e-mail"
-                required
-                className="flex-1 px-6 py-4 rounded-full text-gray-900 text-base sm:text-lg focus:outline-none focus:ring-4 focus:ring-white/50"
-              />
-              <button
-                type="submit"
-                className="bg-[#FF9800] text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-[#F57C00] transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-2"
-              >
-                Receber Receitas
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </form>
-          </div>
+          <LeadCaptureForm />
         </div>
       </section>
 
@@ -420,9 +442,21 @@ export default function NutriGOLandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Legal</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Termos de Uso</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Política de Privacidade</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contato</a></li>
+                <li>
+                  <Link href="/termos" className="hover:text-white transition-colors">
+                    Termos de Uso
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacidade" className="hover:text-white transition-colors">
+                    Política de Privacidade
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contato" className="hover:text-white transition-colors">
+                    Contato
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -430,31 +464,35 @@ export default function NutriGOLandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Redes Sociais</h3>
               <div className="flex gap-4">
-                <a href="#" className="bg-white/10 p-3 rounded-full hover:bg-white/20 transition-all">
-                  <MessageCircle className="w-6 h-6" />
-                </a>
-                <a href="#" className="bg-white/10 p-3 rounded-full hover:bg-white/20 transition-all">
+                <button 
+                  onClick={() => handleSocialClick("email")}
+                  className="bg-white/10 p-3 rounded-full hover:bg-white/20 transition-all"
+                  aria-label="E-mail"
+                >
                   <Mail className="w-6 h-6" />
-                </a>
+                </button>
+                <button 
+                  onClick={() => handleSocialClick("instagram")}
+                  className="bg-white/10 p-3 rounded-full hover:bg-white/20 transition-all"
+                  aria-label="Instagram"
+                >
+                  <ExternalLink className="w-6 h-6" />
+                </button>
               </div>
             </div>
 
             {/* Download */}
             <div>
-              <h3 className="font-bold text-lg mb-4">Baixe o App</h3>
+              <h3 className="font-bold text-lg mb-4">Comece Agora</h3>
               <div className="space-y-3">
-                <button className="w-full bg-white/10 hover:bg-white/20 px-4 py-3 rounded-xl transition-all flex items-center gap-3">
+                <button 
+                  onClick={handleDownloadApp}
+                  className="w-full bg-[#8BC34A] hover:bg-[#7CB342] px-4 py-3 rounded-xl transition-all flex items-center gap-3"
+                >
                   <Star className="w-6 h-6" />
                   <div className="text-left">
-                    <p className="text-xs text-gray-400">Disponível na</p>
-                    <p className="font-semibold">App Store</p>
-                  </div>
-                </button>
-                <button className="w-full bg-white/10 hover:bg-white/20 px-4 py-3 rounded-xl transition-all flex items-center gap-3">
-                  <Play className="w-6 h-6" />
-                  <div className="text-left">
-                    <p className="text-xs text-gray-400">Disponível no</p>
-                    <p className="font-semibold">Google Play</p>
+                    <p className="text-xs text-white/80">Assine agora</p>
+                    <p className="font-semibold">Ver Planos</p>
                   </div>
                 </button>
               </div>
@@ -466,6 +504,83 @@ export default function NutriGOLandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Modal de Checkout Kiwify */}
+      {showCheckout && selectedPlan && (
+        <CheckoutKiwify
+          planId={selectedPlan.id}
+          planName={selectedPlan.name}
+          price={selectedPlan.price}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+
+      {/* Modal de Ranking */}
+      {showRanking && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full my-8 p-6 sm:p-8 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+            <button
+              onClick={() => setShowRanking(false)}
+              className="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 text-gray-600 hover:text-gray-900 transition-all"
+              aria-label="Fechar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-8">
+              <Trophy className="w-16 h-16 text-[#FF9800] mx-auto mb-4" />
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                🏆 Top Nutricionistas da Semana
+              </h2>
+              <p className="text-gray-600">
+                Usuários mais ativos e engajados
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { name: "Maria Silva", points: 1250, position: 1, avatar: "🥇" },
+                { name: "João Santos", points: 980, position: 2, avatar: "🥈" },
+                { name: "Ana Costa", points: 875, position: 3, avatar: "🥉" },
+                { name: "Pedro Lima", points: 720, position: 4, avatar: "👤" },
+                { name: "Carla Souza", points: 650, position: 5, avatar: "👤" }
+              ].map((user) => (
+                <div
+                  key={user.position}
+                  className={`flex items-center justify-between p-4 rounded-xl ${
+                    user.position <= 3
+                      ? "bg-gradient-to-r from-[#FF9800]/10 to-[#F57C00]/10 border-2 border-[#FF9800]"
+                      : "bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="text-3xl">{user.avatar}</span>
+                    <div>
+                      <p className="font-bold text-gray-900">{user.name}</p>
+                      <p className="text-sm text-gray-600">{user.points} pontos</p>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-[#FF9800]">
+                    #{user.position}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => {
+                  setShowRanking(false);
+                  handlePlanSelect("anual", "Anual", "149,90");
+                }}
+                className="bg-gradient-to-r from-[#8BC34A] to-[#7CB342] text-white px-8 py-4 rounded-full font-bold hover:scale-105 transition-all shadow-lg"
+              >
+                Começar a Ganhar Pontos
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
